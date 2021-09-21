@@ -1,0 +1,27 @@
+{{define "content"}}
+
+{{ end }}
+{{define "scripts"}}
+  <script>
+      let tasksProvider = {
+          // other default properties
+          isLoading: false,
+          tasks: [],
+          fetchTasks(key, value) {
+              this.isLoading = true;
+              fetch(`/dashboard/api/v1/tasks/${key}/${value}`)
+                  .then(res => res.json())
+                  .then(data => {
+                      this.isLoading = false;
+                      this.tasks = data;
+                  });
+          }
+      }
+      document.addEventListener('alpine:init', () => {
+          Alpine.data('tasks', () => (tasksProvider))
+          let hrefSplit = window.location.href.split('/');
+          tasksProvider.fetchTasks(hrefSplit.length - 2, hrefSplit.length - 1)
+      })
+  </script>
+
+{{end}}

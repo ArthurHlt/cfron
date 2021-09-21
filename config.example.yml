@@ -1,0 +1,12 @@
+listen: 127.0.0.1:9000
+dev_mode: true
+broker:
+  service_name: cfron
+  plan_name: cfron
+  service_id: b2b69d56-543b-4bf6-a53d-233bc6a6075b
+  plan_id: 5520a982-71af-471e-b87b-a9d906bf7060
+  username: admin
+  password: admin
+#  min_interval: 0
+dkron:
+  endpoint: http://localhost:8080

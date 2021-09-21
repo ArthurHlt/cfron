@@ -1,0 +1,462 @@
+{{define "content"}}
+
+
+  <div x-data="task_provider" class="w-full h-full">
+    <div class="w-full absolute top-0 left-0 z-50" x-show="isLoading">
+      <div class="overflow-hidden h-2 w-full mb-4 text-xs flex bg-blue">
+        <div class="w-full shim-blue"></div>
+      </div>
+    </div>
+    <div @show-task-info.window="task_info = $event.detail.task; openModalInfo = true;" abspos class="inset-0 flex items-center justify-center text-black" style="background-color: rgba(0,0,0,0.5);display: none;" x-show="openModalInfo">
+      <!--Dialog-->
+      <div class="bg-white w-11/12 max-w-7xl mx-auto rounded shadow-lg py-4 text-left px-6" x-show="openModalInfo" @click.away="openModalInfo = false; $event.stopPropagation();"
+           x-transition:enter="ease-out duration-300"
+           x-transition:enter-start="opacity-0 scale-90"
+           x-transition:enter-end="opacity-100 scale-100"
+           x-transition:leave="ease-in duration-300"
+           x-transition:leave-start="opacity-100 scale-100"
+           x-transition:leave-end="opacity-0 scale-90">
+
+        <!--Title-->
+        <template x-if="task_info">
+          <div>
+            <div class="flex justify-between items-center pb-3">
+              <p class="text-2xl font-bold" x-text="task_info.job.displayname"></p>
+              <div class="cursor-pointer z-50" @click="openModalInfo = false; $event.stopPropagation();">
+                <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="flex flex-row w-full">
+              <div class="w-1/4 flex flex-col">
+                <div class="text-gray text-sm">Name</div>
+                <div class="text-black" x-text="task_info.job.name"></div>
+
+                <div class="text-gray text-sm mt-1">Display Name</div>
+                <div class="text-black" x-text="task_info.job.displayname"></div>
+
+                <div class="text-gray text-sm mt-1">Command</div>
+                <div class="text-black" x-text="task_info.job.executor_config.command"></div>
+
+                <div class="text-gray text-sm mt-1">Schedule</div>
+                <div class="text-black" x-text="task_info.job.schedule"></div>
+
+                <div class="text-gray text-sm mt-1">Last Success</div>
+                <div class="text-black" x-text="humanDate(task_info.job.last_success)"></div>
+
+                <div class="text-gray text-sm mt-1">Owner</div>
+                <div class="text-black" x-text="task_info.job.owner"></div>
+              </div>
+              <div class="w-1/4 flex border-l-black pl-1 flex-col">
+                <div class="text-gray text-sm">Status</div>
+                <div class="text-black" x-text="task_info.job.status || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Retries</div>
+                <div class="text-black" x-text="task_info.job.retries || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Concurrency</div>
+                <div class="text-black" x-text="task_info.job.concurrency || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Timeout</div>
+                <div class="text-black" x-text="task_info.job.executor_config.timeout || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Memory</div>
+                <div class="text-black" x-text="task_info.job.executor_config.memory || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Disk</div>
+                <div class="text-black" x-text="task_info.job.executor_config.disk || '&nbsp;'"></div>
+              </div>
+              <div class="w-1/4 border-l-black pl-1 flex flex-col">
+                <div class="text-gray text-sm">Instance Name</div>
+                <div class="text-black" x-text="task_info.job.metadata.instance_name || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Org Name</div>
+                <div class="text-black" x-text="task_info.job.metadata.organization_name || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Space Name</div>
+                <div class="text-black" x-text="task_info.job.metadata.space_name || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Platform</div>
+                <div class="text-black" x-text="task_info.job.metadata.platform || '&nbsp;'"></div>
+              </div>
+
+              <div class="w-1/4 border-l-black pl-1 flex flex-col">
+                <div class="text-gray text-sm">Instance Id</div>
+                <div class="text-black" x-text="task_info.job.metadata.instance_id || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Org Guid</div>
+                <div class="text-black" x-text="task_info.job.metadata.organization_guid || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">Space Guid</div>
+                <div class="text-black" x-text="task_info.job.metadata.space_guid || '&nbsp;'"></div>
+
+                <div class="text-gray text-sm mt-1">App Guid</div>
+                <div class="text-black" x-text="task_info.job.metadata.app_guid || '&nbsp;'"></div>
+              </div>
+            </div>
+          </div>
+          <!-- content -->
+
+        </template>
+
+        <!--Footer-->
+        <div class="flex justify-end pt-2">
+          <button class="modal-close px-4 bg-blue p-3 rounded-lg text-white hover:bg-blue" @click="openModalInfo = false; $event.stopPropagation();">
+            Close
+          </button>
+        </div>
+
+
+      </div>
+      <!--/Dialog -->
+    </div><!-- /Overlay -->
+
+    <div @show-exec-info.window="exec = $event.detail.exec; openModalExec = true;" abspos class="inset-0 flex items-center justify-center text-black" style="background-color: rgba(0,0,0,0.5);display: none;" x-show="openModalExec">
+      <!--Dialog-->
+      <div class="bg-white w-11/12 max-w-7xl mx-auto rounded shadow-lg py-4 text-left px-6" x-show="openModalExec" @click.away="openModalExec = false; $event.stopPropagation();"
+           x-transition:enter="ease-out duration-300"
+           x-transition:enter-start="opacity-0 scale-90"
+           x-transition:enter-end="opacity-100 scale-100"
+           x-transition:leave="ease-in duration-300"
+           x-transition:leave-start="opacity-100 scale-100"
+           x-transition:leave-end="opacity-0 scale-90">
+
+        <!--Title-->
+        <template x-if="exec">
+          <div>
+            <div class="flex justify-between items-center pb-3">
+              <p class="text-2xl font-bold" x-text="exec.job_name +': '+ humanDate(exec.started_at)"></p>
+              <div class="cursor-pointer z-50" @click="openModalExec = false; $event.stopPropagation();">
+                <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="w-full flex flex-col">
+              <div class="text-gray text-sm">Started At</div>
+              <div class="text-black" x-text="humanDate(exec.started_at)"></div>
+
+              <div class="text-gray text-sm mt-1">Finished At</div>
+              <div class="text-black" x-text="exec.finished_at !== '0001-01-01T00:00:00Z' ? humanDate(exec.finished_at) : 'Running'"></div>
+
+              <div class="text-gray text-sm mt-1">Success</div>
+              <div class="text-black" x-text="exec.success"></div>
+
+              <div class="text-gray text-sm mt-1">Output</div>
+              <textarea class="bg-black text-white h-40" x-model="exec.output" readonly></textarea>
+            </div>
+          </div>
+
+          <!-- content -->
+
+        </template>
+
+        <!--Footer-->
+        <div class="flex justify-end pt-2">
+          <button class="modal-close px-4 bg-blue p-3 rounded-lg text-white hover:bg-blue" @click="openModalExec = false; $event.stopPropagation();">
+            Close
+          </button>
+        </div>
+
+
+      </div>
+      <!--/Dialog -->
+    </div><!-- /Overlay -->
+
+
+    <div id="filters" class="collapse">
+      <button @click="filter.toggle()"
+              :class="{
+            'border-b-white': filter.after_open,
+            'border-b-black': !filter.after_open,
+            'shadow-lg': !filter.after_open,
+            }"
+              class="px-5 py-3 text-sm font-medium border border-black  transition-all text-black relative z-30">
+        <i class="mdi mr-2 text-xl align-middle leading-none"
+           :class="{
+        'mdi-filter-menu': !filter.open,
+        'mdi-filter-minus': filter.open
+        }"
+        ></i>Filters
+      </button>
+      <div class="transition-all duration-1000 overflow-hidden mb-10 w-3/4 bg-white max-h-0 border relative border-black shadow-lg relative z-20 text-black -top-px"
+           :style="filter.open ? `max-height:  ${ $el.scrollHeight+20 }px;` : ``"
+           :class="{
+            'p-5': filter.open,
+            'border': filter.open,
+            }"
+      >
+        <form class="flex flex-row" @submit="$event.preventDefault();">
+          <div class="w-1/3 flex flex-col">
+            <div class="my-2">
+              <label class="text-gray" for="name">Name</label>
+              <br/>
+              <input type="text" name="name" x-model="filter.name" id="name"/>
+            </div>
+            <div class="my-2">
+              <label class="text-gray" for="instance_name">Instance Name</label>
+              <br/>
+              <input type="text" name="instance_name" x-model="filter.instance_name" id="instance_name"/>
+            </div>
+            <div class="my-2">
+              <label class="text-gray" for="instance_id">Instance ID</label>
+              <br/>
+              <input type="text" name="instance_id" id="instance_id" x-model="filter.instance_id"/>
+            </div>
+            <div class="my-2">
+              <button class="px-5 py-3 rounded-xl text-sm
+            font-medium text-white bg-blue
+            hover:bg-opacity-90
+            focus:outline-none border-4 border-white transition-all"
+                      @click="loadTasks();refreshUrl();"
+              >
+                Apply<i class="mdi mdi-send ml-2 text-xl align-middle leading-none"
+                        :class="{
+                'mdi-loading mdi-spin': isLoading,
+                'mdi-send': !isLoading
+                }"
+
+                ></i>
+              </button>
+            </div>
+          </div>
+          <div class="w-1/3 flex flex-col">
+            <div class="my-2">
+              <label class="text-gray" for="organization_name">Org name</label>
+              <br/>
+              <input type="text" name="organization_name" id="organization_name" x-model="filter.organization_name"/>
+            </div>
+            <div class="my-2">
+              <label class="text-gray" for="space_name">Space Name</label>
+              <br/>
+              <input type="text" name="space_name" id="space_name" x-model="filter.space_name"/>
+            </div>
+            <div class="my-2">
+              <label class="text-gray" for="app_guid">App Guid</label>
+              <br/>
+              <input type="text" name="app_guid" id="app_guid" x-model="filter.app_guid"/>
+            </div>
+          </div>
+          <div class="w-1/3 flex flex-col">
+            <div class="my-2">
+              <label class="text-gray" for="organization_guid">Org ID</label>
+              <br/>
+              <input type="text" name="organization_guid" id="organization_guid" x-model="filter.organization_guid"/>
+            </div>
+            <div class="my-2">
+              <label class="text-gray" for="space_guid">Space ID</label>
+              <br/>
+              <input type="text" name="space_guid" id="space_guid" x-model="filter.space_guid"/>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <template x-if="tasks.length === 0">
+      <h1 class="text-red font-bold text-4xl">No tasks to see, please use filters</h1>
+    </template>
+
+    <ul>
+      <template x-for="task in tasks">
+
+        <li class="p-2 w-80 max-w-sm sm:w-full sm:p-4 rounded-2xl min-h-36 shadow-lg gap-5 select-none float-left mx-2"
+            :class="{
+      'bg-green': task.job.status === 'success',
+      'bg-blue': task.job.status === '',
+      'bg-red': task.job.status === 'failed',
+      'bg-yellow': task.job.status === 'partially_failed',
+      'animate-pulse': task.exec_status === 'running'
+      }"
+        >
+          <div class="float-right text-black hover:text-white cursor-pointer h-5 w-5" @click="$dispatch('show-task-info', { task: task }); $event.stopPropagation();">
+            <i class="mdi mdi-information"></i>
+          </div>
+          <div class="flex sm:flex-1 flex-col gap-2 p-1">
+            <h1 class="text-lg sm:text-xl font-semibold text-white" x-text="task.job.displayname"></h1>
+            <div class="text-gray h-14 text-sm sm:text-base line-clamp-3 text-gray-light text-right">
+              <template x-if="task.exec_status === 'running'">
+                <div>
+                  <span class="ml-5 mt-3 mr-4 dot-elastic float-right"></span>
+                  Running
+                  <br>
+                  <span x-text="'Started at: '+ humanDate(task.executions[0].started_at)"></span>
+                </div>
+              </template>
+              <template x-if="task.exec_status === 'not_started'">
+                <span>Job not yet started</span>
+              </template>
+              <template x-if="task.exec_status === 'finished'">
+                <span x-text="'Finished at: '+ humanDate(task.executions[0].finished_at)"></span>
+              </template>
+            </div>
+            <div class="transition-all duration-1000 max-h-0 flex flex-col"
+                 :style="task.openExec ? `max-height: 11rem;` : ``"
+                 :class="{
+                  'overflow-auto': task.openExec,
+                  'overflow-hidden': !task.openExec,
+                  }"
+            >
+              <template x-for="exec in task.executions">
+                <div x-text="humanDate(exec.started_at)" class="p-1 cursor-pointer hover:bg-gray border-white border-2 border-no-bottom border-b-white-last"
+                     @click="$dispatch('show-exec-info', { exec: exec }); $event.stopPropagation();"
+                     :class="{
+                  'bg-green': exec.success,
+                  'bg-red': !exec.success && exec.finished_at !== '0001-01-01T00:00:00Z',
+                  'bg-yellow': !exec.success && exec.finished_at === '0001-01-01T00:00:00Z',
+                }"
+                ></div>
+              </template>
+            </div>
+            <div class="w-full pl-3 pr-3 content-center text-white hover:text-black cursor-pointer" @click="toggleOpenExec(task);$event.stopPropagation();">
+              <div class="mx-auto w-6">
+                <i class="mdi text-2xl"
+                   :class="{
+                'mdi-arrow-down-circle-outline': !task.openExec,
+                'mdi-arrow-up-circle-outline': task.openExec,
+                }"
+                ></i>
+              </div>
+            </div>
+
+          </div>
+
+
+        </li>
+
+      </template>
+    </ul>
+  </div>
+{{ end }}
+{{define "scripts"}}
+  <script>
+      document.addEventListener('alpine:init', () => {
+          Alpine.data('task_provider', () => ({
+              isLoading: false,
+              tasks: [],
+              task_info: null,
+              exec: null,
+              openModalExec: false,
+              openModalInfo: false,
+
+              init() {
+                  this.loadTasks();
+                  setInterval(() => {
+                      this.loadTasks();
+                  }, 10000);
+              },
+              filter: {
+                  open: true,
+                  after_open: true,
+                  instance_name: '{{.metadata.instance_name}}',
+                  instance_id: '{{.metadata.instance_id}}',
+                  app_guid: '{{.metadata.app_guid}}',
+                  organization_name: '{{.metadata.organization_name}}',
+                  organization_guid: '{{.metadata.organization_guid}}',
+                  space_name: '{{.metadata.space_name}}',
+                  space_guid: '{{.metadata.space_guid}}',
+                  name: '{{.name}}',
+                  toggle() {
+                      this.open = !this.open;
+                      if (!this.open) {
+                          setTimeout(() => {
+                              this.after_open = false;
+                          }, 900)
+                      } else {
+                          this.after_open = true;
+                      }
+
+                  }
+              },
+              lastExecution(task) {
+                  if (task.executions.length === 0) {
+                      return null
+                  }
+                  return task.executions[0];
+              },
+              getTaskByName(name) {
+                  let foundTask = null;
+                  this.tasks.some(task => {
+                      if (task.job.name === name) {
+                          foundTask = task;
+                          return true;
+                      }
+                      return false;
+                  });
+                  return foundTask
+              },
+              refreshUrl() {
+                  const nextURL = '/dashboard/tasks' + this.makeQueryParams();
+                  const nextTitle = document.getElementsByTagName("title")[0].innerHTML;
+                  const nextState = {};
+                  window.history.replaceState(nextState, nextTitle, nextURL);
+              },
+              makeQueryParams() {
+                  let instanceName = this.filter.instance_name;
+                  let instanceId = this.filter.instance_id;
+                  let orgName = this.filter.organization_name;
+                  let orgGuid = this.filter.organization_guid;
+                  let spaceName = this.filter.space_name;
+                  let spaceGuid = this.filter.space_guid;
+                  let appGuid = this.filter.app_guid;
+                  let name = this.filter.name;
+                  return `?name=${name}&app_guid=${appGuid}&instance_name=${instanceName}&instance_id=${instanceId}&organization_name=${orgName}&organization_guid=${orgGuid}&space_name=${spaceName}&space_guid=${spaceGuid}`
+              },
+              loadTasks() {
+                  this.isLoading = true;
+                  fetch('/dashboard/api/v1/tasks' + this.makeQueryParams())
+                      .then(res => res.json())
+                      .then(data => {
+                          data.forEach(task => {
+                              let previousTask = this.getTaskByName(task.job.name);
+                              if (previousTask === null) {
+                                  task.openExec = false;
+                              } else {
+                                  task.openExec = previousTask.openExec;
+                              }
+                          });
+                          this.isLoading = false;
+                          this.tasks = data;
+                      });
+              },
+          }))
+      })
+
+      function toggleOpenExec(task) {
+          task.openExec = !task.openExec;
+      }
+
+      function lastExecution(task) {
+          if (task.last_execution === undefined) {
+              task.last_execution = {
+                  finished_at: null,
+                  started_at: null,
+              };
+          }
+          return task.last_execution;
+      }
+
+      function executionProvider(task) {
+          return {
+              isLoading: false,
+              executions: [],
+              init() {
+                  fetch(`/dashboard/api/v1/tasks/${task.name}/executions`)
+                      .then(res => res.json())
+                      .then(data => {
+                          this.isLoading = false;
+                          this.executions = data;
+                          if (data.length > 0) {
+                              task.last_execution.finished_at = data[0].finished_at;
+                              task.last_execution.started_at = data[0].started_at;
+                              task.isRunning = data[0].finished_at === '0001-01-01T00:00:00Z';
+                          }
+
+                      });
+              },
+          }
+      }
+  </script>
+
+{{end}}
